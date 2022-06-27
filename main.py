@@ -2,14 +2,13 @@ import sys
 import json
 import base64
 import requests
-
+import time
 # Define API URL and SPK filename:
-sys.argv = "python main.py 2000001"
+#sys.argv = 'python main.py 2000001'
 print(sys.argv)
-
+#time.sleep(10)
 url = 'https://ssd.jpl.nasa.gov/api/horizons.api'
 spk_filename = 'spk_file.bsp'
-
 # Define the time span:
 start_time = '2000-01-01'
 stop_time = '2001-01-01'
@@ -22,7 +21,7 @@ spkid = sys.argv[1]
 
 # Build the appropriate URL for this API request:
 # IMPORTANT: You must encode the "=" as "%3D" and the ";" as "%3B" in the
-#            Horizons COMMAND parameter specification.
+#            Horizons COMMAND parameter specification(DO NOT TOUCH THIS IS FOR FORMATTING).
 
 url += "?format=json&EPHEM_TYPE=SPK&OBJ_DATA=NO"
 url += "&COMMAND='DES%3D{}%3B'&START_TIME='{}'&STOP_TIME='{}'".format(spkid, start_time, stop_time)
