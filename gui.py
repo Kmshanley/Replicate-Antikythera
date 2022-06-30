@@ -1,37 +1,23 @@
 from tkinter import *
 from tkinter import ttk
+from embedded_test import animatePlanet
+def menu():
+    root = Tk()
+    root.title("Test GUI")
 
-def calculate( *args ):
-    try:
-        value = float(feet.get())
-        meters.set(int(0.3048 * value * 10000.0 + 0.5)/10000.0)
-    except ValueError:
-        pass
+    mainStyle = ttk.Style()
+    mainStyle.configure('My.TFrame',background = "black")
 
-root = Tk()
-root.title("Conversion App")
+    mainframe = ttk.Frame(root, height=600, width=800, padding="8 6 100 100", style="My.TFrame")
+    subframe = ttk.Frame(mainframe)
+    mainframe.grid(column=0, row=0, sticky=(N,W,E,S))
+    root.columnconfigure(0, weight=1)
+    root.rowconfigure(0, weight=1)
 
-mainframe = ttk.Frame(root, padding="3 3 12 12")
-mainframe.grid(column=0, row=0, sticky=(N, W, E, S))
-root.columnconfigure(0, weight=1)
-root.rowconfigure(0, weight=1)
+    ttk.Label(mainframe, text="Welcome to Antikythera", font=25, foreground="red", background="black").grid(column=0,row=0,sticky=E)
+    ttk.Button(mainframe, text="Earth & Moon", command=lambda: animatePlanet()).grid(column=0,row=2,sticky=W)
+    
+    root.mainloop()
 
-feet = StringVar()
-feet_entry = ttk.Entry(mainframe, width = 7, textvariable=feet)
-feet_entry.grid(column=2, row=1, sticky=(W, E))
-
-meters = StringVar()
-ttk.Label(mainframe, textvariable=meters).grid(column=2, row=2,sticky=(W,E))
-
-ttk.Button(mainframe, text="Calculate", command=calculate).grid(column=3, row=3, sticky=W)
-
-ttk.Label(mainframe, text="Feet").grid(column=3, row=1, sticky=W)
-ttk.Label(mainframe, text="converted to meters is").grid(column=1,row=2, sticky=E)
-ttk.Label(mainframe, text="Meters").grid(column=3, row=2, sticky=W)
-
-for child in mainframe.winfo_children(): 
-    child.grid_configure(padx=5, pady=5)
-feet_entry.focus()
-root.bind("<Return>", calculate)
-root.bind("<Escape>", quit)
-root.mainloop()
+if __name__ == "__main__":
+    menu()  

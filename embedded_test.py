@@ -1,8 +1,16 @@
+from numpy import arange, sin, pi
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from matplotlib.figure import Figure
+import tkinter as Tk
+import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib.animation as animation
+#---------End of imports
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 import numpy as np
 # from matplotlib.animation import PillowWriter
-def callAnimation():
+def animatePlanet():
     plt.style.use('dark_background')
 
     n_points = 100
