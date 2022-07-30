@@ -76,8 +76,6 @@ class Orbit:
             if d_ecc_anomaly_rad <= tolerance:
                 break
 
-
-
         # calculate heliocentric (origin at sun) in the orbital plane (z = 0)
         x_orb = sm_axis * (np.cos(ecc_anomaly_rad) - ecc)
         y_orb = sm_axis * (np.sqrt(1 - (ecc * ecc)) * np.sin(ecc_anomaly_rad))
@@ -88,4 +86,20 @@ class Orbit:
         print("Mean Anomaly Deg: " + str(m_anomaly_deg))
         print("Ecc Anomaly in Deg: " + str(np.rad2deg(ecc_anomaly_rad)))
 
-        return [x_orb, y_orb, 0]
+        # convert to the ecliptic reference plane (the plane of the earth's orbit)
+        sin_P = np.sin(np.deg2rad(arg_of_p_deg))
+        cos_P = np.cos(np.deg2rad(arg_of_p_deg))
+        sin_ASC = np.sin(np.deg2rad(long_asc_deg))
+        cos_ASC = np.cos(np.deg2rad(long_asc_deg))
+        sin_I = np.sin(np.deg2rad(inc_deg))
+        cos_I = np.cos(np.deg2rad(inc_deg))
+
+        x_ecl = ((((cos_P * cos_ASC) - (sin_P * sin_ASC * cos_I)) * x_orb) +
+                 ((-1 * (sin_P * cos_ASC) - (cos_P * sin_ASC * cos_I)) * y_orb))
+
+        y_ecl = ((((cos_P * sin_ASC) + (sin_P * cos_ASC * cos_I)) * x_orb) +
+                 ((-1 * sin_P * sin_ASC) + (cos_P * cos_ASC * cos_I)) * y_orb)
+
+        z_ecl = (sin_P * sin_I * x_orb) + (cos_P * sin_I * y_orb)
+
+        return [x_ecl, y_ecl, z_ecl]
