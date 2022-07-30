@@ -80,12 +80,6 @@ class Orbit:
         x_orb = sm_axis * (np.cos(ecc_anomaly_rad) - ecc)
         y_orb = sm_axis * (np.sqrt(1 - (ecc * ecc)) * np.sin(ecc_anomaly_rad))
 
-        print("delta_t: " + str(delta_T))
-        print("Mean Long: " + str(m_long_deg))
-        print("Ecc: " + str(ecc))
-        print("Mean Anomaly Deg: " + str(m_anomaly_deg))
-        print("Ecc Anomaly in Deg: " + str(np.rad2deg(ecc_anomaly_rad)))
-
         # convert to the ecliptic reference plane (the plane of the earth's orbit)
         sin_P = np.sin(np.deg2rad(arg_of_p_deg))
         cos_P = np.cos(np.deg2rad(arg_of_p_deg))
