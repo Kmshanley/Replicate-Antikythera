@@ -19,20 +19,22 @@ y_pos = []
 earth = Orbit.Orbit(1.000000018, -0.00000003, 0.01671123, -0.00003661, -0.00054346, 0.01337178,
                     100.46691572, 35999.37306329, 102.93005885, 0.31795260, -5.11260389, -0.24123856)
 
-julian_epoch = 2451544
-julian_date = julian_epoch
+target_date = datetime(2000,1,1)
+step_size = timedelta(days=1)
+
 for i in range(365):
-    pos = earth.get_pos_at_date(julian_date)
+    print(target_date)
+    pos = earth.get_pos_at_date(target_date)
     print(pos)
     x_pos.append(pos[0])
     y_pos.append(pos[1])
-    julian_date = julian_date + 1
+    target_date = target_date + step_size
 
 ax.plot(x_pos, y_pos, '--', linewidth=0.75, color="skyblue")
 
 def animate(i):
     if (i % 50) == 0 and i != 0:
-        print("Rendering: " + str(int(i / 10)) + "%")
+        print("Rendering: " + str(int(i / 10)) + " frames complete")
 
     return plot.set_data(x_pos[i], y_pos[i])
 
@@ -41,5 +43,6 @@ anim = FuncAnimation(fig, animate, frames=365, interval=5, repeat=False)
 anim.save('earth.gif', writer='pillow')
 print("Rendering Complete - File Saved")
 plt.show()
+
 
 

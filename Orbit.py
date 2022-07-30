@@ -2,6 +2,9 @@ from datetime import datetime, timedelta
 import numpy as np
 
 
+# https://ssd.jpl.nasa.gov/planets/approx_pos.html
+# https://www.stjarnhimlen.se/comp/tutorial.html#11
+
 class Orbit:
     def __init__(self, semi_major_axis_epoch, semi_major_axis_delta,
                  eccentricity_epoch, eccentricity_delta,
@@ -22,45 +25,67 @@ class Orbit:
         self.long_of_perihelion_delta = long_of_perihelion_delta  # degrees / century
         self.long_of_asc_node_epoch = long_of_asc_node_epoch  # degrees
         self.long_of_asc_node_delta = long_of_asc_node_delta  # degrees / century
-        self.const_b = const_b  # additional values needed to adjust formula for gas giants
-        self.const_c = const_c  # don't really know what they represent
-        self.const_s = const_s
-        self.const_f = const_f
 
-    def get_pos_at_date(self, julian_date):
-        delta_time = (julian_date - 2451545)/36525
-        print(delta_time)
+        # additional values needed to adjust formula for gas giants
+        # don't really know what they represent
+        self.b = const_b
+        self.c = const_c
+        self.s = const_s
+        self.f = const_f
+
+    def get_pos_at_date(self, date):
+        # IMPORTANT INFO
+        # Astronomers like to use DEGREES, numpy only likes RADIANS
+        # This has caused me many headaches
+
+        # calculate the number of centuries between J2000 and the target date
+        epoch = datetime(2000, 1, 1)
+        SECONDS_PER_CENTURY = 3_153_600_000
+        delta_T = (date - epoch).total_seconds() / SECONDS_PER_CENTURY
 
         # get current values for all base variables
-        semi_major_axis = self.semi_major_axis_epoch + (self.semi_major_axis_delta * delta_time)
-        eccentricity = self.eccentricity_epoch + (self.eccentricity_delta * delta_time)
-        inclination = self.inclination_epoch + (self.inclination_delta * delta_time)
-        mean_longitude = self.mean_longitude_epoch + (self.mean_longitude_delta * delta_time)
-        long_of_perihelion = self.long_of_perihelion_epoch + (self.long_of_perihelion_delta * delta_time)
-        long_of_asc_node = self.long_of_asc_node_epoch + (self.long_of_asc_node_delta * delta_time)
+        # x = x_0 + Δx*ΔT
+        sm_axis = self.semi_major_axis_epoch + (self.semi_major_axis_delta * delta_T)  # a - astronomical units
+        ecc = self.eccentricity_epoch + (self.eccentricity_delta * delta_T)  # e - unitless from 0 to 1
+        inc_deg = self.inclination_epoch + (self.inclination_delta * delta_T)  # I - degrees
+        m_long_deg = self.mean_longitude_epoch + (self.mean_longitude_delta * delta_T)  # L - degrees
+        long_peri_deg = self.long_of_perihelion_epoch + (self.long_of_perihelion_delta * delta_T)  # ῶ - degrees
+        long_asc_deg = self.long_of_asc_node_epoch + (self.long_of_asc_node_delta * delta_T)  # Ω - degrees
 
-        # calculate argument of perihelion and the mean anomaly
-        # argument_of_perihelion = long_of_perihelion - long_of_asc_node
-        mean_anomaly = (mean_longitude - long_of_perihelion + (self.const_b * delta_time * delta_time) +
-                        (self.const_c * np.cos(self.const_f * delta_time)) +
-                        (self.const_s * np.sin(self.const_f * delta_time)))
+        # calculate argument of perihelion - degrees
+        # ω = ῶ - Ω
+        arg_of_p_deg = long_peri_deg - long_asc_deg
 
-        # modulus mean_anomaly so it is between -180 and 180
-        mean_anomaly = (mean_anomaly % 360) - 180
-        print(mean_anomaly)
+        # calculate mean anomaly - degrees
+        # M = L - ῶ + b*(T^2) + c*cos(f*T) + s*sin(f*T)
+        m_anomaly_deg = (m_long_deg + (self.b * (delta_T * delta_T)) + (self.c * np.cos(np.deg2rad(self.f * delta_T)))
+                         + (self.s * np.sin(np.deg2rad(self.f * delta_T))))
 
-        # calculate eccentric_anomaly
-        eccentric_anomaly = mean_anomaly - (np.rad2deg(eccentricity) * np.sin(mean_anomaly))
+        # convert mean anomaly to radians
+        m_anomaly_rad = np.deg2rad(m_anomaly_deg)
+
+        # calculate eccentric anomaly
+        # can only be approximated by iterations
+
+        ecc_anomaly_rad = m_anomaly_rad - (ecc * np.sin(m_anomaly_rad))
         tolerance = pow(10, -6)
         while True:
-            d_mean_anomaly = (mean_anomaly - (eccentric_anomaly - (np.rad2deg(eccentricity)) * np.sin(eccentric_anomaly)))
-            d_eccentric_anomaly = d_mean_anomaly / (1 - (eccentricity * np.cos(eccentric_anomaly)))
-            eccentric_anomaly = eccentric_anomaly + d_eccentric_anomaly
-            if d_eccentric_anomaly <= tolerance:
+            d_m_anomaly_rad = m_anomaly_rad - (ecc_anomaly_rad - (ecc * np.sin(m_anomaly_rad)))
+            d_ecc_anomaly_rad = d_m_anomaly_rad / (1 - (ecc * np.cos(ecc_anomaly_rad)))
+            ecc_anomaly_rad = ecc_anomaly_rad + d_ecc_anomaly_rad
+            if d_ecc_anomaly_rad <= tolerance:
                 break
 
-        # calculate heliocentric coordinates
-        x_helio = semi_major_axis * (np.cos(eccentric_anomaly - eccentricity))
-        y_helio = semi_major_axis * np.sqrt(1 - ((eccentricity * eccentricity) * np.sin(eccentric_anomaly))) * np.sin(eccentric_anomaly)
 
-        return [x_helio, y_helio, 0]
+
+        # calculate heliocentric (origin at sun) in the orbital plane (z = 0)
+        x_orb = sm_axis * (np.cos(ecc_anomaly_rad) - ecc)
+        y_orb = sm_axis * (np.sqrt(1 - (ecc * ecc)) * np.sin(ecc_anomaly_rad))
+
+        print("delta_t: " + str(delta_T))
+        print("Mean Long: " + str(m_long_deg))
+        print("Ecc: " + str(ecc))
+        print("Mean Anomaly Deg: " + str(m_anomaly_deg))
+        print("Ecc Anomaly in Deg: " + str(np.rad2deg(ecc_anomaly_rad)))
+
+        return [x_orb, y_orb, 0]
