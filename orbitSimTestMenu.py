@@ -27,7 +27,7 @@ def select_date(filename_seed="", year=None, month=None, day=None):
         return select_date(filename_seed)
 
 
-def sim_inner_planets(fileout=False, day=None, year=None, month=None):
+def sim_inner_planets(fileout=False, day=None, year=None, month=None, command=None):
     filename = "rocky_planets-date"
 
     print("Simulate inner planets")
@@ -37,10 +37,10 @@ def sim_inner_planets(fileout=False, day=None, year=None, month=None):
         filename = None
 
     draw.animate_solar_system(rocky_planets, date, timedelta(days=1000),
-                              timedelta(days=1), 2, filename)
+                              timedelta(days=1), 2, filename, command)
 
 
-def sim_outer_planets(fileout=False, day=None, year=None, month=None):
+def sim_outer_planets(fileout=False, day=None, year=None, month=None, command=None):
     filename = "gas_giants-date"
 
     print("Simulate inner planets")
@@ -50,7 +50,7 @@ def sim_outer_planets(fileout=False, day=None, year=None, month=None):
         filename = None
 
     draw.animate_solar_system(gas_giants, date, timedelta(days=70000),
-                              timedelta(days=70), 35, filename)
+                              timedelta(days=70), 35, filename, command)
 
 
 def get_coordinates():

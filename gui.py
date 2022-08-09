@@ -2,15 +2,9 @@ from tkinter import *
 from tkinter import ttk
 from embedded_test import animatePlanet
 from orbitSimTestMenu import *
+global pb
+
 def menu():
-
-    def inner_planets_callback():
-        print(day.get() + month.get() + year.get())
-        sim_inner_planets(year=year.get(),month=month.get(),day=day.get())
-
-    def outer_planets_callback():
-        sim_outer_planets(year=year.get(),month=month.get(),day=day.get())
-    
     root = Tk()
     root.title("Test GUI")
     root.tk.call("source", "azure.tcl")
@@ -26,9 +20,25 @@ def menu():
     mainStyle.configure('DRK.TLabel',foreground="white", background="black")
 
 
-    month = StringVar(mainframe, "")
-    day = StringVar(mainframe,"")
-    year = StringVar(mainframe, "")
+    month = StringVar(mainframe, "3")
+    day = StringVar(mainframe,"27")
+    year = StringVar(mainframe, "2001")
+    
+    pb = ttk.Progressbar(mainframe, length=200,orient='horizontal', mode='determinate')
+    pb.grid(column=0,row=1, sticky=W)
+
+    def increment_pb():
+        if(pb['value'] < 100):
+            pb['value'] += 5
+    
+    def inner_planets_callback():
+        pb['value']=0
+        sim_inner_planets(year=year.get(),month=month.get(),day=day.get(), command=increment_pb)
+
+    def outer_planets_callback():
+        pb['value']=0
+        sim_outer_planets(year=year.get(),month=month.get(),day=day.get(), command=increment_pb)
+
     
     ttk.Label(mainframe, text="Year:").grid(column=1,row=1)
     ttk.Label(mainframe, text="Month:").grid(column=1,row=2)
@@ -43,6 +53,8 @@ def menu():
     ttk.Button(mainframe, text="Outer Plannets (~200YR)", command=outer_planets_callback).grid(column=0,row=3,sticky=W)
     
     root.mainloop()
+
+
 
 if __name__ == "__main__":
     menu()  
