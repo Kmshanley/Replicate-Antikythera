@@ -3,32 +3,35 @@ from planets import rocky_planets, gas_giants, solar_system
 import animate_orbit as draw
 
 
-def select_date(filename_seed=""):
+def select_date(filename_seed="", year=None, month=None, day=None):
     filename = filename_seed
     print("Enter simulation start date:")
-    year = int(input("Year>"))
+    if(year is None):
+        year = int(input("Year>"))
     filename += str(year)
     filename += "-"
-    month = int(input("Month>"))
+    if(month is None):
+        month = int(input("Month>"))
     filename += str(month)
     filename += "-"
-    day = int(input("Day>"))
+    if(month is None):
+        day = int(input("Day>"))
     filename += str(day)
     filename += ".gif"
-
+    print(filename + " " + year + month + day)
     try:
-        date = datetime(year=year, month=month, day=day)
+        date = datetime(year=int(year), month=int(month), day=int(day))
         return date, filename
     except:
         print("Not a valid date. Try again")
         return select_date(filename_seed)
 
 
-def sim_inner_planets(fileout):
+def sim_inner_planets(fileout=False, day=None, year=None, month=None):
     filename = "rocky_planets-date"
 
     print("Simulate inner planets")
-    date, filename = select_date(filename)
+    date, filename = select_date(filename, year, month, day)
 
     if not fileout:
         filename = None
@@ -37,11 +40,11 @@ def sim_inner_planets(fileout):
                               timedelta(days=1), 2, filename)
 
 
-def sim_outer_planets(fileout):
+def sim_outer_planets(fileout=False, day=None, year=None, month=None):
     filename = "gas_giants-date"
 
     print("Simulate inner planets")
-    date, filename = select_date(filename)
+    date, filename = select_date(filename, year, month, day)
 
     if not fileout:
         filename = None
@@ -94,5 +97,5 @@ def menu():
             exit()
         else:
             print("Not a valid command")
-
-menu()
+if __name__ == '__main__':
+    menu()
