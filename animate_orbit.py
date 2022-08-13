@@ -10,6 +10,7 @@ def animate_solar_system(solar_system, start_date: datetime, length: timedelta,
     ax = plt.axes(xlim=((0 - size), size), ylim=((0 - size), size))
 
     ax.plot(0, 0, '.', markersize=20, color="yellow")
+    plt.annotate('Sun', xy = (0, 0), xytext=(-0.1, 0.1))
     plt.grid(True, lw=0.3)
     ss_plots = []
 
