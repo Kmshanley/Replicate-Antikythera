@@ -1,7 +1,7 @@
 import json
 import requests
 
-HorizonsID_Planets_dict = {
+HorizonsID_Planets_dict = { //Creates a dictionary with all of the planets that will be searched for
   "Mercury": "199",
   "Venus": "299",
   "year": "399",
