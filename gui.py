@@ -1,70 +1,57 @@
 from tkinter import *
 from tkinter import ttk
-from embedded_test import animatePlanet
-from orbitSimTestMenu import *
 from datetime import datetime, timedelta
-from planets import rocky_planets, gas_giants, solar_system
+from planets import solar_system
 import time
-global pb
 
 def menu():
     root = Tk()
-    root.title("Test GUI")
+    root.title("Replicate Antikythera")
     root.tk.call("source", "azure.tcl")
     root.tk.call("set_theme", "dark")
-
-    mainframe = ttk.Frame(root, height=600, width=800, padding="8 6 100 100")
-    subframe = ttk.Frame(mainframe)
-    mainframe.grid(column=0, row=0, sticky=(N,W,E,S))
-    root.columnconfigure(0, weight=1)
-    root.rowconfigure(0, weight=1)
 
     mainStyle = ttk.Style()
     mainStyle.configure('DRK.TLabel',foreground="white", background="black")
 
-    month = StringVar(mainframe, "")
-    day = StringVar(mainframe,"")
-    year = StringVar(mainframe, "")
-    
-    pb = ttk.Progressbar(mainframe, length=200,orient='horizontal', mode='determinate')
-    pb.grid(column=0,row=1, sticky=W)
+    mainframe = ttk.Frame(root)
+    mainframe.grid(column=0, row=0, sticky=(N,W,E,S))
+    mainframe.columnconfigure(0, weight=1)
+    mainframe.columnconfigure(1, weight=1)
+    mainframe.columnconfigure(2, weight=1)
 
-    def increment_pb():
-        if(pb['value'] < 100):
-            pb['value'] += 5
-    
-    def inner_planets_callback():
-        pb['value']=0
-        sim_inner_planets(year=year.get(),month=month.get(),day=day.get(), command=increment_pb)
+    inputFrame = ttk.Labelframe(mainframe, relief="groove", padding="3", text="Simulation Parameters")
+    inputFrame.grid(column=0, row=0, sticky="n")
 
-    def outer_planets_callback():
-        pb['value']=0
-        sim_outer_planets(year=year.get(),month=month.get(),day=day.get(), command=increment_pb)
+    solSystem_Background = PhotoImage(file='backgroundSolid.png')
+    solSystem_canvas = Canvas(mainframe, height=solSystem_Background.height(), width=solSystem_Background.width())
+    solSystem_canvas.create_image(0, 0, image=solSystem_Background, anchor='nw')
+    solSystem_canvas.grid(column=1, row=0, sticky="n")
 
-    ttk.Label(mainframe, text="Year:").grid(column=1,row=1)
-    ttk.Label(mainframe, text="Month:").grid(column=1,row=2)
-    ttk.Label(mainframe, text="Day:").grid(column=1,row=3)
+    infoFrame = ttk.Labelframe(mainframe, relief="groove", padding="3", text="Relevant Events")
+    infoFrame.grid(column=2, row=0, sticky="n")
+    text = Text(infoFrame, width=20, height=20, state='disabled')
+    text.grid(column=0, row=0,sticky="n")
 
-    ttk.Entry(mainframe, textvariable=year).grid(column=2, row=1)
-    ttk.Entry(mainframe, textvariable=month).grid(column=2, row=2)
-    ttk.Entry(mainframe, textvariable=day).grid(column=2, row=3)
+    start_month = StringVar(mainframe, "1")
+    start_day = StringVar(mainframe,"1")
+    start_year = StringVar(mainframe, "2001")
+    end_month = StringVar(mainframe, "1")
+    end_day = StringVar(mainframe,"1")
+    end_year = StringVar(mainframe, "2005")
 
-    ttk.Label(mainframe, text="Welcome to Antikythera", font=50).grid(column=0,row=0,sticky=E)
-    ttk.Button(mainframe, text="Inner Plannets (~3YR)", command=inner_planets_callback).grid(column=0,row=2,sticky=W)
-    ttk.Button(mainframe, text="Outer Plannets (~200YR)", command=outer_planets_callback).grid(column=0,row=3,sticky=W)
-    
-    canvas = Canvas(mainframe, width=500,height=500)
-    
-    canvas.grid(column=5,row=0, sticky=(N,W,E,S),columnspan=20, rowspan=50)
-    myImg = PhotoImage(file='chin.png')
-    canvas.create_image(10,10,image=myImg, anchor='nw')
-    ball = canvas.create_oval(150,150,250,250, fill="red",outline="blue")
-    def OK():
-        for i in range(100):
-            canvas.move(ball,1,1)
-            canvas.update()
-            time.sleep(0.01)
-    ttk.Button(mainframe, text="temp", command=OK).grid(column=0,row=4)
+    ttk.Label(inputFrame, text="Start Year:").grid(column=0,row=1)
+    ttk.Label(inputFrame, text="Start Month:").grid(column=0,row=2)
+    ttk.Label(inputFrame, text="Start Day:").grid(column=0,row=3)
+    ttk.Separator(inputFrame, orient=HORIZONTAL).grid(column=0, row=4, columnspan=2)
+    ttk.Label(inputFrame, text="End Year:").grid(column=0,row=5)
+    ttk.Label(inputFrame, text="End Month:").grid(column=0,row=6)
+    ttk.Label(inputFrame, text="End Day:").grid(column=0,row=7)
+    ttk.Entry(inputFrame, textvariable=start_month).grid(column=1, row=1)
+    ttk.Entry(inputFrame, textvariable=start_day).grid(column=1, row=2)
+    ttk.Entry(inputFrame, textvariable=start_year).grid(column=1, row=3)
+    ttk.Entry(inputFrame, textvariable=end_month).grid(column=1, row=5)
+    ttk.Entry(inputFrame, textvariable=end_day).grid(column=1, row=6)
+    ttk.Entry(inputFrame, textvariable=end_year).grid(column=1, row=7)
 
     root.mainloop()
 
