@@ -2,7 +2,9 @@ from tkinter import *
 from tkinter import ttk
 from datetime import datetime, timedelta
 from planets import solar_system
+import Orbit
 import time
+import numpy as np
 
 def menu():
     root = Tk()
@@ -64,6 +66,22 @@ def menu():
     end_day = StringVar(mainframe,"1")
     end_year = StringVar(mainframe, "2005")
 
+    planets = []
+    min10 = np.log10(2.7e7)
+    for body in solar_system:
+        date = datetime(int(start_year.get()), int(start_month.get()), int(start_day.get()))
+        x,y,z = body.orbit.get_pos_at_date(date)
+        r = np.hypot(x,y)
+        r = np.log(r) - min10
+        theta = np.rad2deg(np.arctan2(y,x))
+        theta = np.radians(theta)
+        x = r * np.cos(theta)
+        y = r * np.sin(theta)
+        x = (x + 425)
+        y = (y + 325)
+        planets.append(solSystem_canvas.create_oval(x,y,x+15,y+15,fill="blue"))
+    solSystem_canvas.update()
+    
     ttk.Label(inputFrame, text="Start Year:").grid(column=0,row=1)
     ttk.Label(inputFrame, text="Start Month:").grid(column=0,row=2)
     ttk.Label(inputFrame, text="Start Day:").grid(column=0,row=3)
