@@ -1,7 +1,6 @@
 from datetime import datetime, timedelta
 import numpy as np
 
-
 # https://ssd.jpl.nasa.gov/planets/approx_pos.html
 # https://www.stjarnhimlen.se/comp/tutorial.html#11
 

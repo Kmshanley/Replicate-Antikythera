@@ -97,5 +97,6 @@ def menu():
             exit()
         else:
             print("Not a valid command")
+            
 if __name__ == '__main__':
     menu()
