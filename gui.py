@@ -75,11 +75,12 @@ def menu():
         r = np.log(r) - min10
         theta = np.rad2deg(np.arctan2(y,x))
         theta = np.radians(theta)
-        x = r * np.cos(theta)
-        y = r * np.sin(theta)
-        x = (x + 425)
-        y = (y + 325)
-        planets.append(solSystem_canvas.create_oval(x,y,x+15,y+15,fill="blue"))
+        
+        x = r * np.cos(theta) 
+        y = r * np.sin(theta) 
+        x = (x * 835/16) + 435
+        y = (y * 650/16) + 325
+        planets.append(solSystem_canvas.create_oval(x,y,x + body.draw_size*2,y+body.draw_size*2,fill=body.color))
     solSystem_canvas.update()
     
     ttk.Label(inputFrame, text="Start Year:").grid(column=0,row=1)
