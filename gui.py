@@ -102,8 +102,9 @@ def menu():
     planets = []
     min10 = np.log10(2.7e7) #minimum distance at the center of the plot set to 27,000,000km
     max10 = np.log10(1.496e+10)
+    date = datetime(int(end_year.get()), int(end_month.get()), int(end_day.get()))
+
     for body in solar_system:
-        date = datetime(int(end_year.get()), int(end_month.get()), int(end_day.get()))
         x,y,z = body.orbit.get_pos_at_date(date)
         x = x * 1.496e+8 #convert from au to km
         y = y * 1.496e+8 #convert from au to km
@@ -130,6 +131,33 @@ def menu():
         planets.append(solSystem_canvas.create_oval(x,y,x + body.draw_size,y+body.draw_size,fill=body.color))
     solSystem_canvas.update()
     
+    def move_planets(day):
+        for body in planets:
+            x,y,z = body.orbit.get_pos_at_date(day)
+            x = x * 1.496e+8 #convert from au to km
+            y = y * 1.496e+8 #convert from au to km
+            if x < 0:
+                x = np.log10(abs(x))
+                x = x - min10
+                x = x * -1
+            else:
+                x = np.log10(x)
+                x = x - min10
+
+            if y < 0:
+                y = np.log10(abs(y))
+                y = y - min10
+                y = y * -1
+            else:
+                y = np.log10(y)
+                y = y - min10
+
+            x = remap(x, (max10 - min10) * -1, max10 - min10, 100, solSystem_Background.width() - 100)
+            y = remap(y, (max10 - min10) * -1, max10 - min10, 0, solSystem_Background.height())
+            solSystem_canvas.moveto(body, x,y)
+        solSystem_canvas.update()
+
+
     ttk.Label(inputFrame, text="Start Year:").grid(column=0,row=1)
     ttk.Label(inputFrame, text="Start Month:").grid(column=0,row=2)
     ttk.Label(inputFrame, text="Start Day:").grid(column=0,row=3)
