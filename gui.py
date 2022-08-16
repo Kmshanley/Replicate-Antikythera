@@ -111,7 +111,7 @@ def menu():
     inputFrame = ttk.Labelframe(mainframe, relief="groove", padding="3", text="Simulation Parameters")
     inputFrame.grid(column=0, row=0, sticky="n")
 
-    solSystem_Background = PhotoImage(file='backgroundSolid.png')
+    solSystem_Background = PhotoImage(file='linearBackground.png')
     solSystem_canvas = Canvas(mainframe, height=solSystem_Background.height(), width=solSystem_Background.width())
     solSystem_canvas.create_image(0, 0, image=solSystem_Background, anchor='nw')
     solSystem_canvas.grid(column=1, row=0, sticky="n")
@@ -166,6 +166,7 @@ def menu():
         x = x * 1.496e+8 #convert from au to km
         y = y * 1.496e+8 #convert from au to km
 
+        '''
         if x < 0:
             x = np.log10(abs(x))
             x = x - min10
@@ -181,9 +182,10 @@ def menu():
         else:
             y = np.log10(y)
             y = y - min10
+        '''
 
-        x = remap(x, (max10 - min10) * -1, max10 - min10, 100, solSystem_Background.width() - 100)
-        y = remap(y, (max10 - min10) * -1, max10 - min10, 0, solSystem_Background.height())
+        x = remap(x, (1.496e+10 - 2.7e7) * -1, 1.496e+10 - 2.7e7, 100, solSystem_Background.width() - 100)
+        y = remap(y, (1.496e+10 - 2.7e7) * -1, 1.496e+10 - 2.7e7, 0, solSystem_Background.height())
 
         planets.append(solSystem_canvas.create_oval(x,y,x + body.draw_size,y+body.draw_size,fill=body.color))
     solSystem_canvas.update()
@@ -193,6 +195,8 @@ def menu():
             x,y,z = solar_system[i].orbit.get_pos_at_date(day)
             x = x * 1.496e+8 #convert from au to km
             y = y * 1.496e+8 #convert from au to km
+
+            '''
             if x < 0:
                 x = np.log10(abs(x))
                 x = x - min10
@@ -208,9 +212,10 @@ def menu():
             else:
                 y = np.log10(y)
                 y = y - min10
+            '''
 
-            x = remap(x, (max10 - min10) * -1, max10 - min10, 100, solSystem_Background.width() - 100)
-            y = remap(y, (max10 - min10) * -1, max10 - min10, 0, solSystem_Background.height())
+            x = remap(x, (1.5e+9) * -1, 1.5e+9, 100, solSystem_Background.width() - 100)
+            y = remap(y, (1.5e+9) * -1, 1.5e+9, 0, solSystem_Background.height())
             solSystem_canvas.moveto(planets[i], x,y)
         solSystem_canvas.update()
 

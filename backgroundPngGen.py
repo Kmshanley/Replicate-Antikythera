@@ -36,13 +36,14 @@ if __name__ == '__main__':
     min10 = np.log10(2.7e7)
     max10 = np.log10(1.496e+10)
     rs = np.arange(0, 1e11, 1e9)
-    rs = [np.log10(max(r, 1e-20)) - min10 for r in rs]
+    #rs = [np.log10(max(r, 1e-20)) - min10 for r in rs]
     for t in np.arange(0, 360, 90):
         theta = [np.radians(t)]*len(rs)
         ax.scatter(theta, rs, color='#ffffff', marker=(2, 0, t%180),  
                         lw=0.5, alpha=1, s=20)
         ax.plot([np.radians(t)]*2, [0, max(rs)], color='#ffffff', lw=0.5, alpha=1)
 
+    '''
     for body in planets.solar_system:
         xlist = []
         ylist = []
@@ -53,12 +54,13 @@ if __name__ == '__main__':
 
         rs, theta = get_r_theta(xlist, ylist)
         ax.plot(theta, rs, color=body.color, lw=1.5, alpha=0.5, zorder = 10)
+    '''
         
     ax.set_facecolor("#10112d")
     l = np.arange(np.floor(min10), max10)
     ax.set_rticks(l - min10) 
     ax.set_yticklabels([])
-    ax.set_rlim(0, max10 - min10)
+    ax.set_rlim(0, max(rs))
 
     plt.tight_layout()
     plt.subplots_adjust(top=1, bottom=0, right=1, left=0, hspace=0, wspace=0)
