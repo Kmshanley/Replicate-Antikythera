@@ -59,6 +59,7 @@ def menu():
         global runAnimation
         current_animation_time = current_animation_time + timedelta(int(stepsize.get()))
         move_planets(current_animation_time)
+        simulation_currentData_Label.configure(text=str(current_animation_time))
         if runAnimation:
             root.after(100, animation)
 
