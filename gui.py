@@ -1,3 +1,4 @@
+from cProfile import run
 from tkinter import *
 from tkinter import ttk
 from datetime import datetime, timedelta
@@ -40,6 +41,27 @@ def remap( x, oMin, oMax, nMin, nMax ):
     return result
 
 def menu():
+    global current_animation_time
+    global runAnimation
+    runAnimation = False
+
+    def startAnimation():
+        global runAnimation
+        runAnimation = True
+        root.after(100, animation)
+
+    def pauseAnimation():
+        global runAnimation
+        runAnimation = False
+
+    def animation():
+        global current_animation_time
+        global runAnimation
+        current_animation_time = current_animation_time + timedelta(int(stepsize.get()))
+        move_planets(current_animation_time)
+        if runAnimation:
+            root.after(100, animation)
+
     root = Tk()
     root.title("Replicate Antikythera")
     root.tk.call("source", "azure.tcl")
@@ -80,13 +102,13 @@ def menu():
     controlsFrame = ttk.Frame(mainframe)
     controlsFrame.grid(column=1, row=1)
 
-    pauseSim_button = Button(controlsFrame, text="Pause")
+    pauseSim_button = Button(controlsFrame, text="Pause", command=pauseAnimation)
     pauseButton_img = PhotoImage(file="pausebutton.png")
     pauseButton_img = pauseButton_img.subsample(16,16) #make the button smaller (512/16 = 32)
     pauseSim_button.config(image=pauseButton_img)
     pauseSim_button.grid(column=1, row=0)
 
-    startSim_button = Button(controlsFrame, text="Play")
+    startSim_button = Button(controlsFrame, text="Play", command=startAnimation)
     playButton_img = PhotoImage(file="playbutton.png")
     playButton_img = playButton_img.subsample(16,16) #make the button smaller (512/16 = 32)
     startSim_button.config(image=playButton_img)
@@ -98,14 +120,15 @@ def menu():
     end_month = StringVar(mainframe, "1")
     end_day = StringVar(mainframe,"1")
     end_year = StringVar(mainframe, "2005")
+    stepsize = StringVar(mainframe, "30")
 
     planets = []
     min10 = np.log10(2.7e7) #minimum distance at the center of the plot set to 27,000,000km
     max10 = np.log10(1.496e+10)
-    date = datetime(int(end_year.get()), int(end_month.get()), int(end_day.get()))
+    current_animation_time = datetime(int(start_year.get()), int(start_month.get()), int(start_day.get()))
 
     for body in solar_system:
-        x,y,z = body.orbit.get_pos_at_date(date)
+        x,y,z = body.orbit.get_pos_at_date(current_animation_time)
         x = x * 1.496e+8 #convert from au to km
         y = y * 1.496e+8 #convert from au to km
 
@@ -132,8 +155,8 @@ def menu():
     solSystem_canvas.update()
     
     def move_planets(day):
-        for body in planets:
-            x,y,z = body.orbit.get_pos_at_date(day)
+        for i in range(len(solar_system)):
+            x,y,z = solar_system[i].orbit.get_pos_at_date(day)
             x = x * 1.496e+8 #convert from au to km
             y = y * 1.496e+8 #convert from au to km
             if x < 0:
@@ -154,9 +177,8 @@ def menu():
 
             x = remap(x, (max10 - min10) * -1, max10 - min10, 100, solSystem_Background.width() - 100)
             y = remap(y, (max10 - min10) * -1, max10 - min10, 0, solSystem_Background.height())
-            solSystem_canvas.moveto(body, x,y)
+            solSystem_canvas.moveto(planets[i], x,y)
         solSystem_canvas.update()
-
 
     ttk.Label(inputFrame, text="Start Year:").grid(column=0,row=1)
     ttk.Label(inputFrame, text="Start Month:").grid(column=0,row=2)
@@ -165,12 +187,14 @@ def menu():
     ttk.Label(inputFrame, text="End Year:").grid(column=0,row=5)
     ttk.Label(inputFrame, text="End Month:").grid(column=0,row=6)
     ttk.Label(inputFrame, text="End Day:").grid(column=0,row=7)
+    ttk.Label(inputFrame, text="Step Size (days):").grid(column=0,row=8)
     ttk.Entry(inputFrame, textvariable=start_month).grid(column=1, row=1)
     ttk.Entry(inputFrame, textvariable=start_day).grid(column=1, row=2)
     ttk.Entry(inputFrame, textvariable=start_year).grid(column=1, row=3)
     ttk.Entry(inputFrame, textvariable=end_month).grid(column=1, row=5)
     ttk.Entry(inputFrame, textvariable=end_day).grid(column=1, row=6)
     ttk.Entry(inputFrame, textvariable=end_year).grid(column=1, row=7)
+    ttk.Entry(inputFrame, textvariable=stepsize).grid(column=1, row=8)
 
     root.mainloop()
 
