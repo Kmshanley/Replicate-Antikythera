@@ -6,6 +6,39 @@ import Orbit
 import time
 import numpy as np
 
+def remap( x, oMin, oMax, nMin, nMax ):
+
+    #range check
+    if oMin == oMax:
+        return None
+
+    if nMin == nMax:
+        return None
+
+    #check reversed input range
+    reverseInput = False
+    oldMin = min( oMin, oMax )
+    oldMax = max( oMin, oMax )
+    if not oldMin == oMin:
+        reverseInput = True
+
+    #check reversed output range
+    reverseOutput = False   
+    newMin = min( nMin, nMax )
+    newMax = max( nMin, nMax )
+    if not newMin == nMin :
+        reverseOutput = True
+
+    portion = (x-oldMin)*(newMax-newMin)/(oldMax-oldMin)
+    if reverseInput:
+        portion = (oldMax-x)*(newMax-newMin)/(oldMax-oldMin)
+
+    result = portion + newMin
+    if reverseOutput:
+        result = newMax - portion
+
+    return result
+
 def menu():
     root = Tk()
     root.title("Replicate Antikythera")
@@ -67,20 +100,34 @@ def menu():
     end_year = StringVar(mainframe, "2005")
 
     planets = []
-    min10 = np.log10(2.7e7)
+    min10 = np.log10(2.7e7) #minimum distance at the center of the plot set to 27,000,000km
+    max10 = np.log10(1.496e+10)
     for body in solar_system:
-        date = datetime(int(start_year.get()), int(start_month.get()), int(start_day.get()))
+        date = datetime(int(end_year.get()), int(end_month.get()), int(end_day.get()))
         x,y,z = body.orbit.get_pos_at_date(date)
-        r = np.hypot(x,y)
-        r = np.log(r) - min10
-        theta = np.rad2deg(np.arctan2(y,x))
-        theta = np.radians(theta)
-        
-        x = r * np.cos(theta) 
-        y = r * np.sin(theta) 
-        x = (x * 835/16) + 435
-        y = (y * 650/16) + 325
-        planets.append(solSystem_canvas.create_oval(x,y,x + body.draw_size*2,y+body.draw_size*2,fill=body.color))
+        x = x * 1.496e+8 #convert from au to km
+        y = y * 1.496e+8 #convert from au to km
+
+        if x < 0:
+            x = np.log10(abs(x))
+            x = x - min10
+            x = x * -1
+        else:
+            x = np.log10(x)
+            x = x - min10
+
+        if y < 0:
+            y = np.log10(abs(y))
+            y = y - min10
+            y = y * -1
+        else:
+            y = np.log10(y)
+            y = y - min10
+
+        x = remap(x, (max10 - min10) * -1, max10 - min10, 100, solSystem_Background.width() - 100)
+        y = remap(y, (max10 - min10) * -1, max10 - min10, 0, solSystem_Background.height())
+
+        planets.append(solSystem_canvas.create_oval(x,y,x + body.draw_size,y+body.draw_size,fill=body.color))
     solSystem_canvas.update()
     
     ttk.Label(inputFrame, text="Start Year:").grid(column=0,row=1)
