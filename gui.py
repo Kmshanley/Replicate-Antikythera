@@ -42,11 +42,17 @@ def remap( x, oMin, oMax, nMin, nMax ):
 
 def menu():
     global current_animation_time
+    global start_animation_time
+    global end_animation_time
     global runAnimation
     runAnimation = False
 
     def startAnimation():
         global runAnimation
+        global current_animation_time
+        global end_animation_time
+        current_animation_time = datetime(int(start_year.get()), int(start_month.get()), int(start_day.get()))
+        end_animation_time = datetime(int(end_year.get()), int(end_month.get()), int(end_day.get()))
         runAnimation = True
         root.after(100, animation)
 
@@ -56,12 +62,32 @@ def menu():
 
     def animation():
         global current_animation_time
+        global end_animation_time
         global runAnimation
         current_animation_time = current_animation_time + timedelta(int(stepsize.get()))
+        if current_animation_time > end_animation_time:
+            runAnimation = False
+            return
+
+        silder.set(remap(current_animation_time.timestamp(), start_animation_time.timestamp(), end_animation_time.timestamp(), 0, 1000))
         move_planets(current_animation_time)
         simulation_currentData_Label.configure(text=str(current_animation_time))
+
         if runAnimation:
             root.after(100, animation)
+
+    def sliderUpdate(newVal):
+        global start_animation_time
+        global end_animation_time
+        global current_animation_time
+        global runAnimation
+        current_animation_time = datetime(int(start_year.get()), int(start_month.get()), int(start_day.get()))
+        end_animation_time = datetime(int(end_year.get()), int(end_month.get()), int(end_day.get()))
+        timefromslider = datetime.fromtimestamp(remap(float(newVal), 0, 1000, start_animation_time.timestamp(), end_animation_time.timestamp()))
+        current_animation_time = timefromslider
+        simulation_currentData_Label.configure(text=str(timefromslider))
+
+        move_planets(timefromslider)
 
     root = Tk()
     root.title("Replicate Antikythera")
@@ -93,7 +119,7 @@ def menu():
     v1 = DoubleVar()
     silder = ttk.Scale(mainframe, variable = v1, 
            from_ = 0, to = 1000, 
-           orient = HORIZONTAL, length=solSystem_Background.width())
+           orient = HORIZONTAL, length=solSystem_Background.width(), command=sliderUpdate)
     silder.grid(column=1, row=3, sticky="s")
 
     simulation_currentData_Label = ttk.Label(mainframe, text = "Press play to start simulation")
@@ -126,7 +152,9 @@ def menu():
     planets = []
     min10 = np.log10(2.7e7) #minimum distance at the center of the plot set to 27,000,000km
     max10 = np.log10(1.496e+10)
-    current_animation_time = datetime(int(start_year.get()), int(start_month.get()), int(start_day.get()))
+    start_animation_time = datetime(int(start_year.get()), int(start_month.get()), int(start_day.get()))
+    current_animation_time = start_animation_time
+    end_animation_time = datetime(int(end_year.get()), int(end_month.get()), int(end_day.get()))
 
     for body in solar_system:
         x,y,z = body.orbit.get_pos_at_date(current_animation_time)
@@ -181,13 +209,13 @@ def menu():
             solSystem_canvas.moveto(planets[i], x,y)
         solSystem_canvas.update()
 
-    ttk.Label(inputFrame, text="Start Year:").grid(column=0,row=1)
-    ttk.Label(inputFrame, text="Start Month:").grid(column=0,row=2)
-    ttk.Label(inputFrame, text="Start Day:").grid(column=0,row=3)
+    ttk.Label(inputFrame, text="Start Month:").grid(column=0,row=1)
+    ttk.Label(inputFrame, text="Start Day:").grid(column=0,row=2)
+    ttk.Label(inputFrame, text="Start Year:").grid(column=0,row=3)
     ttk.Separator(inputFrame, orient=HORIZONTAL).grid(column=0, row=4, columnspan=2)
-    ttk.Label(inputFrame, text="End Year:").grid(column=0,row=5)
-    ttk.Label(inputFrame, text="End Month:").grid(column=0,row=6)
-    ttk.Label(inputFrame, text="End Day:").grid(column=0,row=7)
+    ttk.Label(inputFrame, text="End Month:").grid(column=0,row=5)
+    ttk.Label(inputFrame, text="End Day:").grid(column=0,row=6)
+    ttk.Label(inputFrame, text="End Year:").grid(column=0,row=7)
     ttk.Label(inputFrame, text="Step Size (days):").grid(column=0,row=8)
     ttk.Entry(inputFrame, textvariable=start_month).grid(column=1, row=1)
     ttk.Entry(inputFrame, textvariable=start_day).grid(column=1, row=2)
