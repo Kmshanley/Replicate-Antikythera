@@ -1,12 +1,12 @@
 from cProfile import run
 from tkinter import *
-from tkinter import ttk
+from tkinter import ttk, scrolledtext,INSERT
 from datetime import datetime, timedelta
 from planets import solar_system
+from queryEclipse import query
 import Orbit
 import time
 import numpy as np
-
 def remap( x, oMin, oMax, nMin, nMax ):
 
     #range check
@@ -52,6 +52,7 @@ def menu():
         global current_animation_time
         global end_animation_time
         current_animation_time = datetime(int(start_year.get()), int(start_month.get()), int(start_day.get()))
+        text.delete('1.0', END)
         end_animation_time = datetime(int(end_year.get()), int(end_month.get()), int(end_day.get()))
         runAnimation = True
         root.after(100, animation)
@@ -65,6 +66,10 @@ def menu():
         global end_animation_time
         global runAnimation
         current_animation_time = current_animation_time + timedelta(int(stepsize.get()))
+        eclipseStr = query(current_animation_time)
+        if eclipseStr is not None:
+            text.insert(INSERT, (eclipseStr + " eclipse @ " + str(current_animation_time) + "\n"))
+            eclipseStr = None
         if current_animation_time > end_animation_time:
             runAnimation = False
             return
@@ -111,11 +116,11 @@ def menu():
     solSystem_canvas.create_image(0, 0, image=solSystem_Background, anchor='nw')
     solSystem_canvas.grid(column=1, row=0, sticky="n")
 
-    infoFrame = ttk.Labelframe(mainframe, relief="groove", padding="3", text="Relevant Events")
+    infoFrame = ttk.LabelFrame(mainframe, relief="groove", padding="3", text="Relevant Events")
     infoFrame.grid(column=2, row=0, sticky="n")
-    text = Text(infoFrame, width=20, height=20, state='disabled')
+    text = scrolledtext.ScrolledText(infoFrame, width=20, height=20, state='normal')
     text.grid(column=0, row=0,sticky="n")
-
+    
     v1 = DoubleVar()
     silder = ttk.Scale(mainframe, variable = v1, 
            from_ = 0, to = 1000, 
